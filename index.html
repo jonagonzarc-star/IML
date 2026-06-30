@@ -1,12 +1,1347 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BrainTrain</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #eff6ff;
+        color: #0f172a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: linear-gradient(180deg, #e0f2fe 0%, #f8fafc 100%);
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      .page {
+        display: none;
+        padding: 20px 24px 48px;
+        max-width: 1180px;
+        margin: 0 auto;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 28px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #1d4ed8;
+      }
+
+      .hero {
+        display: grid;
+        gap: 24px;
+      }
+
+      .hero-text {
+        max-width: 640px;
+      }
+
+      .hero h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 5vw, 4.2rem);
+        line-height: 1.02;
+      }
+
+      .hero p {
+        margin: 18px 0 0;
+        color: #334155;
+        font-size: 1.05rem;
+        line-height: 1.8;
+      }
+
+      .hero-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+      }
+
+      .btn {
+        border: 0;
+        border-radius: 999px;
+        cursor: pointer;
+        padding: 14px 24px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
+      }
+
+      .btn-secondary {
+        background: white;
+        color: #0f172a;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+      }
+
+      .difficulty-btn {
+        width: 100%;
+      }
+
+      .dark body,
+      .dark :root {
+        color-scheme: dark;
+      }
+
+      body.dark {
+        background: linear-gradient(180deg, #020617 0%, #111827 100%);
+        color: #e2e8f0;
+      }
+
+      body.dark .page {
+        color: #e2e8f0;
+      }
+
+      body.dark .topbar,
+      body.dark .feature-card,
+      body.dark .module-card,
+      body.dark .category-card,
+      body.dark .question-card,
+      body.dark .summary-card,
+      body.dark .form-card,
+      body.dark .skill-card,
+      body.dark .timer-box,
+      body.dark .score-box,
+      body.dark .progress-box {
+        background: #0f172a;
+        border-color: rgba(148, 163, 184, 0.16);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.24);
+      }
+
+      body.dark .brand,
+      body.dark h1,
+      body.dark h2,
+      body.dark h3,
+      body.dark p,
+      body.dark label,
+      body.dark .small-text {
+        color: #f8fafc;
+      }
+
+      body.dark .badge {
+        background: #1d4ed8;
+        color: #f8fafc;
+      }
+
+      body.dark .btn-secondary,
+      body.dark .difficulty-btn {
+        background: #1f2937;
+        color: #e2e8f0;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35);
+      }
+
+      body.dark .btn-primary {
+        background: #2563eb;
+        color: white;
+      }
+
+      body.dark .form-card input {
+        background: #111827;
+        border-color: rgba(148, 163, 184, 0.18);
+        color: #e2e8f0;
+      }
+
+      body.dark .option-btn {
+        background: #111827;
+        border-color: rgba(148, 163, 184, 0.24);
+        color: #e2e8f0;
+      }
+
+      body.dark .option-btn.correct {
+        background: #166534;
+      }
+
+      body.dark .option-btn.wrong {
+        background: #7f1d1d;
+      }
+
+      body.dark .progress-bar {
+        background: #1f2937;
+      }
+
+      body.dark .progress-fill {
+        background: linear-gradient(90deg, #60a5fa, #2563eb);
+      }
+
+      body.dark .footer-note {
+        color: #cbd5e1;
+      }
+
+      .difficulty-btn.selected {
+        background: #1d4ed8;
+        color: white;
+        box-shadow: 0 18px 40px rgba(37, 99, 235, 0.18);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .cards,
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .feature-card,
+      .module-card,
+      .category-card,
+      .question-card,
+      .summary-card,
+      .form-card,
+      .skill-card {
+        border-radius: 32px;
+        background: white;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        box-shadow: 0 22px 48px rgba(15, 23, 42, 0.08);
+        padding: 24px;
+      }
+
+      .feature-card {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .feature-card span {
+        font-size: 2rem;
+      }
+
+      .feature-card h3,
+      .module-card h3,
+      .category-card h3,
+      .summary-card h3,
+      .skill-card h3,
+      .form-card h2 {
+        margin: 0 0 10px;
+        font-size: 1.25rem;
+      }
+
+      .feature-card p,
+      .module-card p,
+      .category-card p,
+      .summary-card p,
+      .skill-card p,
+      .form-card p {
+        margin: 0;
+        color: #475569;
+        line-height: 1.7;
+      }
+
+      .module-card button,
+      .category-card button,
+      .summary-card button,
+      .skill-card button,
+      .form-card button {
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .form-card label {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 16px;
+        color: #0f172a;
+        font-weight: 700;
+      }
+
+      .form-card input,
+      .form-card textarea,
+      .form-card select {
+        border-radius: 20px;
+        padding: 14px 18px;
+        border: 1px solid rgba(148, 163, 184, 0.32);
+        background: #f8fafc;
+        width: 100%;
+      }
+
+      .form-card textarea {
+        resize: vertical;
+      }
+
+      .form-card p.error {
+        color: #dc2626;
+        margin: 0 0 16px;
+        font-weight: 700;
+      }
+
+      .timer-box,
+      .score-box,
+      .progress-box {
+        border-radius: 28px;
+        padding: 22px;
+        background: #eff6ff;
+      }
+
+      .timer-box p,
+      .score-box p,
+      .progress-box p {
+        margin: 0;
+        color: #0f172a;
+      }
+
+      .timer-box strong,
+      .score-box strong,
+      .progress-box strong {
+        display: block;
+        margin-top: 10px;
+        font-size: 2.4rem;
+      }
+
+      .question-area {
+        margin-top: 24px;
+      }
+
+      .question-area h3 {
+        margin: 0 0 24px;
+        font-size: 1.7rem;
+      }
+
+      .options-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .option-btn {
+        border: 2px solid rgba(148, 163, 184, 0.25);
+        border-radius: 22px;
+        padding: 18px 20px;
+        background: white;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #0f172a;
+        cursor: pointer;
+        transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      }
+
+      .option-btn:hover {
+        transform: translateY(-1px);
+        border-color: #2563eb;
+      }
+
+      .option-btn.correct {
+        background: #dcfce7;
+        border-color: #22c55e;
+        color: #166534;
+      }
+
+      .option-btn.wrong {
+        background: #fee2e2;
+        border-color: #ef4444;
+        color: #991b1b;
+      }
+
+      .progress-bar {
+        height: 12px;
+        width: 100%;
+        border-radius: 999px;
+        background: #e2e8f0;
+        overflow: hidden;
+        margin-top: 12px;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #2563eb, #1d4ed8);
+        border-radius: inherit;
+        transition: width 0.3s ease;
+      }
+
+      .small-text {
+        color: #64748b;
+        font-size: 0.95rem;
+      }
+
+      .footer-note {
+        text-align: center;
+        margin-top: 32px;
+        color: #475569;
+      }
+
+      @media (min-width: 768px) {
+        .hero {
+          grid-template-columns: 1.2fr 1fr;
+        }
+
+        .cards,
+        .grid-3,
+        .grid-4 {
+          gap: 20px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .grid-2,
+        .grid-3,
+        .grid-4,
+        .hero {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          flex-wrap: wrap;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <main>
+      <section class="page active" id="welcome-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button id="theme-toggle-button" class="btn btn-secondary" onclick="toggleDarkMode()">Modo oscuro</button>
+            <button class="btn btn-secondary" onclick="goTo('register-screen')">Registrarse</button>
+          </div>
+        </div>
+
+        <div class="hero">
+          <div class="hero-text">
+            <span class="badge">Juego educativo</span>
+            <h1>Aprende cálculo mental y ortografía de manera divertida.</h1>
+            <p>Una página donde los niños pueden practicar sus habilidades matemáticas y de lenguaje de forma entretenida.</p>
+            <div class="hero-buttons">
+              <button class="btn btn-primary" onclick="goTo('register-screen')">Empezar</button>
+            </div>
+          </div>
+
+          <div class="cards grid-2">
+            <div class="feature-card">
+              <span>⏱️</span>
+              <div>
+                <h3>Cronómetro digital</h3>
+                <p>Responde rápido y gana puntos.</p>
+              </div>
+            </div>
+            <div class="feature-card">
+              <span>🎯</span>
+              <div>
+                <h3>Atención</h3>
+                <p>Practica con juegos cortos y divertidos.</p>
+              </div>
+            </div>
+            <div class="feature-card">
+              <span>🧩</span>
+              <div>
+                <h3>Razonamiento</h3>
+                <p>Resuelve patrones y desafíos numéricos.</p>
+              </div>
+            </div>
+            <div class="feature-card">
+              <span>✍️</span>
+              <div>
+                <h3>Ortografía</h3>
+                <p>Corrige palabras y usa signos correctamente.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">
+          <h2>Estadísticas</h2>
+          <span class="small-text">Revisa tu progreso y vuelve cuando quieras.</span>
+        </div>
+
+        <div class="grid-1" style="max-width: 400px; margin: 0 auto;">
+          <article class="summary-card">
+            <h3>Progreso</h3>
+            <p>Puntos, precisión y juegos completados.</p>
+            <button class="btn btn-secondary" onclick="goTo('summary-screen')">Ver estadísticas</button>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="register-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <button class="btn btn-secondary" onclick="goTo('welcome-screen')">Volver</button>
+        </div>
+
+        <article class="form-card">
+          <h2>Registra tu perfil</h2>
+          <p class="small-text">Guarda tu nombre para que se conserve tu progreso.</p>
+          <p id="register-error" class="error"></p>
+          <label>
+            Nombre completo
+            <input id="profile-name" type="text" placeholder="Ej: Carla" />
+          </label>
+          <label>
+            Grado
+            <input id="profile-grade" type="text" placeholder="Ej: 3° Básico" />
+          </label>
+          <label>
+            Edad
+            <input id="profile-age" type="number" min="6" max="12" placeholder="Ej: 9" />
+          </label>
+          <button class="btn btn-primary" onclick="saveProfile()">Guardar perfil</button>
+        </article>
+      </section>
+
+      <section class="page" id="menu-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+            <button id="theme-toggle-button" class="btn btn-secondary" onclick="toggleDarkMode()">Modo oscuro</button>
+            <button class="btn btn-secondary" onclick="goTo('welcome-screen')">Inicio</button>
+          </div>
+        </div>
+
+        <div class="section-title">
+          <h2>Elige tu módulo</h2>
+          <span class="small-text">Selecciona una categoría para comenzar.</span>
+        </div>
+
+        <div class="grid-2">
+          <article class="module-card">
+            <span class="badge">Matemáticas</span>
+            <h3>Cálculo Mental</h3>
+            <p>Desafíos cronometrados de operaciones y patrones.</p>
+            <button class="btn btn-primary" onclick="setModule('math')">Seleccionar</button>
+          </article>
+          <article class="module-card">
+            <span class="badge">Ortografía</span>
+            <h3>Ortografía</h3>
+            <p>Ejercicios de palabras, acentos, signos y mensajes correctos.</p>
+            <button class="btn btn-primary" onclick="setModule('spelling')">Seleccionar</button>
+          </article>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">
+          <h2>Nivel de dificultad</h2>
+          <span class="small-text">Escoge fácil, medio o difícil antes de jugar.</span>
+        </div>
+
+        <div id="difficulty-buttons" class="grid-3"></div>
+
+        <div class="section-title" style="margin-top: 40px;">
+          <h2>Tu avance</h2>
+          <span class="small-text">Se guarda en este navegador.</span>
+        </div>
+
+        <div class="grid-3">
+          <article class="summary-card">
+            <h3>Puntos</h3>
+            <p id="status-score">0</p>
+          </article>
+          <article class="summary-card">
+            <h3>Exactas</h3>
+            <p id="status-correct">0 / 0</p>
+          </article>
+          <article class="summary-card">
+            <h3>Precisión</h3>
+            <p id="status-accuracy">0%</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="category-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <button class="btn btn-secondary" onclick="goTo('menu-screen')">Volver</button>
+        </div>
+
+        <div class="section-title">
+          <h2 id="category-title">Selecciona un reto</h2>
+          <span class="small-text" id="category-subtitle">Escoge un juego para practicar.</span>
+        </div>
+
+        <div id="category-cards" class="grid-3"></div>
+      </section>
+
+      <section class="page" id="game-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <button class="btn btn-secondary" onclick="endGame()">Salir</button>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: 24px;">
+          <div class="timer-box">
+            <p>Tiempo restante</p>
+            <strong id="time-left">20s</strong>
+          </div>
+          <div class="score-box">
+            <p>Puntos</p>
+            <strong id="game-score">0</strong>
+          </div>
+        </div>
+
+        <article class="question-card">
+          <p class="small-text">Reto: <strong id="game-category"></strong></p>
+          <div class="question-area">
+            <h3 id="question-text">¿Estás listo?</h3>
+            <div id="question-options" class="options-grid"></div>
+          </div>
+          <div class="progress-box">
+            <p>Progreso</p>
+            <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+          </div>
+          <p id="feedback-text" class="small-text" style="margin-top: 18px;"></p>
+        </article>
+      </section>
+
+      <section class="page" id="summary-screen">
+        <div class="topbar">
+          <div class="brand">🧠 BrainTrain</div>
+          <button class="btn btn-secondary" onclick="goTo('welcome-screen')">Inicio</button>
+        </div>
+
+        <div class="section-title">
+          <h2>Resumen del entrenamiento</h2>
+          <span class="small-text">Revisa tus puntos y tu progreso.</span>
+        </div>
+
+        <div class="grid-3">
+          <article class="summary-card">
+            <h3>Puntos totales</h3>
+            <p id="summary-points">0</p>
+          </article>
+          <article class="summary-card">
+            <h3>Precisión</h3>
+            <p id="summary-accuracy">0%</p>
+          </article>
+          <article class="summary-card">
+            <h3>Juegos completados</h3>
+            <p id="summary-games">0</p>
+          </article>
+        </div>
+
+        <div style="margin-top: 18px; text-align: center;">
+          <button class="btn btn-secondary" onclick="exportResults()">Descargar base de datos</button>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">
+          <h2>Habilidades cognitivas</h2>
+          <span class="small-text">Memoria, atención y razonamiento.</span>
+        </div>
+
+        <div class="grid-3">
+          <article class="skill-card">
+            <h3>Memoria</h3>
+            <p id="summary-memory">0%</p>
+          </article>
+          <article class="skill-card">
+            <h3>Atención</h3>
+            <p id="summary-attention">0%</p>
+          </article>
+          <article class="skill-card">
+            <h3>Razonamiento</h3>
+            <p id="summary-reasoning">0%</p>
+          </article>
+        </div>
+
+        <div class="section-title" style="margin-top: 32px;">
+          <h2>Formulario de satisfacción</h2>
+          <span class="small-text">Cuéntanos qué te pareció el juego.</span>
+        </div>
+
+        <article class="form-card">
+          <label>
+            ¿Te gustó el juego?
+            <select id="feedback-like">
+              <option value="">Selecciona</option>
+              <option value="sí">Sí</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+          <label>
+            ¿Fue fácil de entender?
+            <select id="feedback-easy">
+              <option value="">Selecciona</option>
+              <option value="sí">Sí</option>
+              <option value="más o menos">Más o menos</option>
+              <option value="no">No</option>
+            </select>
+          </label>
+          <label>
+            ¿Qué mejorarías?
+            <textarea id="feedback-comments" rows="3" placeholder="Escribe tu comentario"></textarea>
+          </label>
+          <button type="button" class="btn btn-primary" onclick="submitFeedback()">Enviar evaluación</button>
+          <p id="feedback-message" class="small-text" style="margin-top: 16px;"></p>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const state = {
+        profile: null,
+        module: null,
+        category: null,
+        difficulty: "medio",
+        darkMode: false,
+        questions: [],
+        currentIndex: 0,
+        score: 0,
+        correct: 0,
+        timeLeft: 20,
+        timerId: null,
+        answered: false,
+        completedGames: [],
+        allResults: []
+      };
+
+      const difficultyLevels = [
+        { id: "facil", label: "Fácil", questions: 4 },
+        { id: "medio", label: "Medio", questions: 5 },
+        { id: "dificil", label: "Difícil", questions: 6 }
+      ];
+
+      function renderDifficultyButtons() {
+        const container = document.getElementById("difficulty-buttons");
+        if (!container) return;
+        container.innerHTML = "";
+
+        difficultyLevels.forEach((level) => {
+          const btn = document.createElement("button");
+          btn.className = `btn btn-secondary difficulty-btn ${state.difficulty === level.id ? "selected" : ""}`;
+          btn.textContent = level.label;
+          btn.addEventListener("click", () => setDifficulty(level.id));
+          container.appendChild(btn);
+        });
+      }
+
+      function setDifficulty(levelId) {
+        state.difficulty = levelId;
+        renderDifficultyButtons();
+      }
+
+      function getQuestionCountForDifficulty() {
+        const level = difficultyLevels.find((item) => item.id === state.difficulty);
+        return level ? level.questions : 5;
+      }
+
+      function getQuestionPool(category) {
+        const count = getQuestionCountForDifficulty();
+        const length = category.questions.length;
+
+        if (state.difficulty === "facil") {
+          return category.questions.slice(0, Math.min(count, length));
+        }
+
+        if (state.difficulty === "medio") {
+          if (length <= count) {
+            return category.questions.slice(0, length);
+          }
+          return category.questions.slice(1, 1 + count);
+        }
+
+        return category.questions.slice(-Math.min(count, length));
+      }
+
+
+      const mathCategories = [
+        {
+          id: "mental",
+          name: "Cálculo Mental",
+          description: "Sumas, restas y multiplicaciones rápidas.",
+          questions: [
+            { prompt: "¿Cuánto es 8 + 7?", options: [13, 15, 16, 14], answer: 15 },
+            { prompt: "¿Cuánto es 12 - 5?", options: [6, 7, 8, 9], answer: 7 },
+            { prompt: "¿Cuánto es 9 x 5?", options: [45, 40, 50, 35], answer: 45 },
+            { prompt: "¿Qué es 15 - 3?", options: [9, 12, 11, 10], answer: 12 },
+            { prompt: "¿Cuánto es 4 x 6?", options: [20, 22, 24, 26], answer: 24 },
+            { prompt: "¿Cuánto es 7 + 8?", options: [14, 15, 16, 17], answer: 15 }
+          ]
+        },
+        {
+          id: "encadenadas",
+          name: "Operaciones Encadenadas",
+          description: "Resuelve varios pasos en una sola pregunta.",
+          questions: [
+            { prompt: "Resuelve: 5 + 2 x 3", options: [17, 13, 11, 21], answer: 11 },
+            { prompt: "Resuelve: 10 - 3 + 4", options: [11, 9, 7, 13], answer: 11 },
+            { prompt: "Resuelve: 2 x 3 + 6", options: [12, 10, 9, 8], answer: 12 },
+            { prompt: "Resuelve: 18 / 3 + 5", options: [11, 10, 8, 12], answer: 11 },
+            { prompt: "Resuelve: 4 + 6 / 2", options: [7, 5, 8, 6], answer: 7 },
+            { prompt: "Resuelve: 3 x 4 - 5", options: [7, 9, 11, 5], answer: 7 }
+          ]
+        },
+        {
+          id: "patrones",
+          name: "Patrones Numéricos",
+          description: "Identifica la lógica de la secuencia.",
+          questions: [
+            { prompt: "¿Qué sigue? 2, 4, 6, 8, ?", options: [10, 9, 11, 12], answer: 10 },
+            { prompt: "¿Qué sigue? 5, 10, 15, ?", options: [20, 18, 17, 25], answer: 20 },
+            { prompt: "¿Qué sigue? 3, 6, 12, ?", options: [18, 16, 15, 24], answer: 24 },
+            { prompt: "¿Qué sigue? 10, 7, 4, ?", options: [1, 2, 0, 3], answer: 1 },
+            { prompt: "¿Qué sigue? 1, 2, 4, 8, ?", options: [16, 12, 10, 14], answer: 16 },
+            { prompt: "¿Qué sigue? 9, 18, 27, ?", options: [36, 33, 30, 28], answer: 36 }
+          ]
+        },
+        {
+          id: "series",
+          name: "Series Numéricas",
+          description: "Completa la serie con el siguiente número.",
+          questions: [
+            { prompt: "¿Qué sigue? 1, 3, 5, 7, ?", options: [8, 9, 10, 11], answer: 9 },
+            { prompt: "¿Qué sigue? 2, 4, 8, 16, ?", options: [32, 24, 20, 18], answer: 32 },
+            { prompt: "¿Qué sigue? 5, 10, 20, 40, ?", options: [80, 60, 70, 90], answer: 80 },
+            { prompt: "¿Qué sigue? 7, 14, 21, ?", options: [25, 28, 24, 26], answer: 28 },
+            { prompt: "¿Qué sigue? 11, 22, 33, ?", options: [44, 40, 45, 42], answer: 44 },
+            { prompt: "¿Qué sigue? 4, 9, 14, 19, ?", options: [24, 23, 22, 25], answer: 24 }
+          ]
+        },
+        {
+          id: "rapidos",
+          name: "Problemas Rápidos",
+          description: "Resuelve antes de que termine el tiempo.",
+          questions: [
+            { prompt: "Si tienes 5 lápices y das 2, ¿cuántos quedan?", options: [3, 2, 4, 1], answer: 3 },
+            { prompt: "Si sumas 3 + 6 + 2, ¿cuánto es?", options: [11, 12, 10, 9], answer: 11 },
+            { prompt: "Si tienes 12 galletas y comes 4, ¿cuántas quedan?", options: [7, 8, 6, 9], answer: 8 },
+            { prompt: "Si compras 3 globos por 2 soles, ¿cuánto pagas?", options: [6, 5, 8, 4], answer: 6 },
+            { prompt: "Si pierdes 3 canicas de 10, ¿con cuántas te quedas?", options: [7, 6, 8, 5], answer: 7 },
+            { prompt: "Si tienes 4 cajas con 3 dulces, ¿cuántos dulces hay?", options: [12, 11, 10, 13], answer: 12 }
+          ]
+        },
+        {
+          id: "porcentajes",
+          name: "Porcentajes",
+          description: "Calcula porcentajes de forma sencilla.",
+          questions: [
+            { prompt: "¿Cuánto es 25% de 80?", options: [16, 20, 24, 18], answer: 20 },
+            { prompt: "¿Cuánto es 50% de 40?", options: [20, 10, 15, 25], answer: 20 },
+            { prompt: "¿Cuánto es 10% de 50?", options: [5, 10, 8, 6], answer: 5 },
+            { prompt: "Si 100 es el 100%, ¿cuánto es 50%?", options: [50, 25, 75, 60], answer: 50 },
+            { prompt: "¿Cuánto es 20% de 60?", options: [12, 16, 14, 10], answer: 12 },
+            { prompt: "¿Cuánto es 30% de 70?", options: [21, 18, 24, 20], answer: 21 }
+          ]
+        }
+      ];
+
+      const spellingCategories = [
+        {
+          id: "correccion",
+          name: "Corrección de palabras",
+          description: "Selecciona la palabra escrita correctamente.",
+          questions: [
+            { prompt: "¿Cuál está escrita correctamente?", options: ["amigoo", "amigo", "amigó", "amigoo"], answer: "amigo" },
+            { prompt: "¿Cuál está escrita correctamente?", options: ["casa", "caza", "casaa", "caza"], answer: "casa" },
+            { prompt: "¿Cuál está escrita correctamente?", options: ["árbol", "arbol", "arból", "árvol"], answer: "árbol" },
+            { prompt: "¿Cuál está escrita correctamente?", options: ["fácil", "fasil", "facil", "fácíl"], answer: "fácil" },
+            { prompt: "¿Cuál está escrita correctamente?", options: ["lápiz", "lapiz", "láppiz", "łápiz"], answer: "lápiz" },
+            { prompt: "¿Cuál está escrita correctamente?", options: ["niño", "ninio", "niñó", "niñó"], answer: "niño" }
+          ]
+        },
+        {
+          id: "clasificacion",
+          name: "Clasificación",
+          description: "Agudas, graves, esdrújulas y sobreesdrújulas.",
+          questions: [
+            { prompt: "¿Cómo es 'música'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Esdrújula" },
+            { prompt: "¿Cómo es 'camión'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Aguda" },
+            { prompt: "¿Cómo es 'pájaro'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Esdrújula" },
+            { prompt: "¿Cómo es 'árbol'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Grave" },
+            { prompt: "¿Cómo es 'rápidamente'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Sobreesdrújula" },
+            { prompt: "¿Cómo es 'teléfono'?", options: ["Aguda", "Grave", "Esdrújula", "Sobreesdrújula"], answer: "Esdrújula" }
+          ]
+        },
+        {
+          id: "completar",
+          name: "Completar palabras",
+          description: "Llena los espacios en blanco con la letra correcta.",
+          questions: [
+            { prompt: "Completa: ca__a", options: ["casa", "caza", "casa", "cosa"], answer: "casa" },
+            { prompt: "Completa: ni__o", options: ["ño", "ño", "no", "na"], answer: "ño" },
+            { prompt: "Completa: ma__ana", options: ["ñ", "n", "gn", "s"], answer: "ñ" },
+            { prompt: "Completa: a__ción", options: ["c", "s", "z", "x"], answer: "c" },
+            { prompt: "Completa: pe__a", options: ["r", "l", "n", "s"], answer: "r" },
+            { prompt: "Completa: mo__ila", options: ["v", "b", "h", "j"], answer: "v" }
+          ]
+        },
+        {
+          id: "acentos",
+          name: "Acentos",
+          description: "Elige la palabra con acento correcto.",
+          questions: [
+            { prompt: "¿Cuál es correcto?", options: ["cafe", "café", "cafè", "cafá"], answer: "café" },
+            { prompt: "¿Cuál es correcto?", options: ["camion", "camión", "camiòn", "cámon"], answer: "camión" },
+            { prompt: "¿Cuál es correcto?", options: ["papel", "papél", "papèl", "pápel"], answer: "papel" },
+            { prompt: "¿Cuál es correcto?", options: ["limon", "limón", "limòn", "límon"], answer: "limón" },
+            { prompt: "¿Cuál es correcto?", options: ["arbol", "árbol", "arból", "árbol"], answer: "árbol" },
+            { prompt: "¿Cuál es correcto?", options: ["fútbol", "futbol", "fútbol", "futbòl"], answer: "fútbol" }
+          ]
+        },
+        {
+          id: "puntuacion",
+          name: "Signos de puntuación",
+          description: "Escoge la oración bien puntuada.",
+          questions: [
+            { prompt: "Selecciona correcta:", options: ["Hola, como estás?", "Hola, ¿cómo estás?", "Hola ¿cómo estás", "Hola como estás?"], answer: "Hola, ¿cómo estás?" },
+            { prompt: "Selecciona correcta:", options: ["Vamos al parque.", "Vamos al parque", "Vamos al parque!", "Vamos al parque..?"], answer: "Vamos al parque." },
+            { prompt: "Selecciona correcta:", options: ["¿Qué hora es?", "Que hora es?", "Qué hora es?", "¿Qué hora es"], answer: "¿Qué hora es?" },
+            { prompt: "Selecciona correcta:", options: ["El gato duerme.", "El gato duerme", "El gato duerme..", "El gato duerme!"], answer: "El gato duerme." },
+            { prompt: "Selecciona correcta:", options: ["¡Vamos ya!", "Vamos ya!", "¡Vamos ya", "Vamos ya"], answer: "¡Vamos ya!" },
+            { prompt: "Selecciona correcta:", options: ["Mi mamá me llamó.", "Mi mama me llamo.", "Mi mamá me llamo.", "Mi mamá me llamó"], answer: "Mi mamá me llamó." }
+          ]
+        },
+        {
+          id: "descifrar",
+          name: "Descifrar mensajes",
+          description: "Reescribe textos que están mal escritos.",
+          questions: [
+            { prompt: "Corrige: 'la nina juega'", options: ["La niña juega", "La nina juega", "La niña juega.", "La niña juega!"], answer: "La niña juega" },
+            { prompt: "Corrige: 'el ninio come'", options: ["El niño come", "El ninio come", "El niño come.", "El niño come!"], answer: "El niño come" },
+            { prompt: "Corrige: 'mi amiga es muy lista'", options: ["Mi amiga es muy lista", "Mi amiga esta muy lista", "Mi amiga es muy lista.", "Mi amiga es muy lista!"], answer: "Mi amiga es muy lista" },
+            { prompt: "Corrige: 'los chicos van al cole'", options: ["Los chicos van al cole", "Los chicos van al colegio", "Los chicos van al cole.", "Los chicos van al colegio."], answer: "Los chicos van al cole" },
+            { prompt: "Corrige: 'mi mama cocina rico'", options: ["Mi mamá cocina rico", "Mi mama cocina rico", "Mi mamá cocina rico.", "Mi mamá cocina rico!"], answer: "Mi mamá cocina rico" },
+            { prompt: "Corrige: 'la maestra lee un cuento'", options: ["La maestra lee un cuento", "La maestra lee un cuento.", "La maestra lee un cuento!", "La maestra lee un cuento?"], answer: "La maestra lee un cuento" }
+          ]
+        }
+      ];
+
+      const pages = [
+        "welcome-screen",
+        "register-screen",
+        "menu-screen",
+        "category-screen",
+        "game-screen",
+        "summary-screen"
+      ];
+
+      function showPage(pageId) {
+        pages.forEach((id) => {
+          const page = document.getElementById(id);
+          if (page) {
+            page.classList.toggle("active", id === pageId);
+          }
+        });
+      }
+
+      function goTo(pageId) {
+        if (pageId === "menu-screen" && !state.profile) {
+          goTo("register-screen");
+          return;
+        }
+        if (pageId === "summary-screen") {
+          renderSummary();
+        }
+        if (pageId === "menu-screen") {
+          renderStatus();
+          renderDifficultyButtons();
+        }
+        showPage(pageId);
+      }
+
+      function saveProfile() {
+        const name = document.getElementById("profile-name").value.trim();
+        const grade = document.getElementById("profile-grade").value.trim();
+        const age = document.getElementById("profile-age").value.trim();
+        const error = document.getElementById("register-error");
+
+        if (!name || !grade || !age) {
+          if (error) error.textContent = "Completa todos los campos para comenzar.";
+          return;
+        }
+
+        state.profile = { name, grade, age };
+        localStorage.setItem("braintrain-profile", JSON.stringify(state.profile));
+        if (error) error.textContent = "";
+        goTo("menu-screen");
+      }
+
+      function loadProfile() {
+        const saved = localStorage.getItem("braintrain-profile");
+        if (saved) {
+          state.profile = JSON.parse(saved);
+        }
+      }
+
+      function loadResults() {
+        const savedResults = localStorage.getItem("braintrain-results");
+        if (savedResults) {
+          state.allResults = JSON.parse(savedResults);
+          state.completedGames = state.allResults.slice();
+        }
+      }
+
+      function saveResults() {
+        localStorage.setItem("braintrain-results", JSON.stringify(state.allResults));
+      }
+
+      function exportResults() {
+        if (!state.allResults.length) {
+          alert("No hay resultados guardados aún.");
+          return;
+        }
+        const fileName = `braintrain-results-${new Date().toISOString().slice(0,10)}.json`;
+        const blob = new Blob([JSON.stringify(state.allResults, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      function loadTheme() {
+        const savedTheme = localStorage.getItem("braintrain-theme");
+        state.darkMode = savedTheme === "dark";
+        document.body.classList.toggle("dark", state.darkMode);
+        updateThemeButton();
+      }
+
+      function toggleDarkMode() {
+        state.darkMode = !state.darkMode;
+        document.body.classList.toggle("dark", state.darkMode);
+        localStorage.setItem("braintrain-theme", state.darkMode ? "dark" : "light");
+        updateThemeButton();
+      }
+
+      function updateThemeButton() {
+        const button = document.getElementById("theme-toggle-button");
+        if (!button) return;
+        button.textContent = state.darkMode ? "Modo claro" : "Modo oscuro";
+      }
+
+      function setModule(module) {
+        state.module = module;
+        state.category = null;
+        state.questions = [];
+        state.currentIndex = 0;
+        state.score = 0;
+        state.correct = 0;
+        state.timeLeft = 20;
+
+        const title = module === "math" ? "Retos de Cálculo Mental" : "Retos de Ortografía";
+        const subtitle = module === "math"
+          ? "Elige un juego para practicar números y operaciones."
+          : "Elige un juego para practicar letras, acentos y puntuación.";
+
+        document.getElementById("category-title").textContent = title;
+        document.getElementById("category-subtitle").textContent = `${subtitle} Nivel: ${difficultyLevels.find((item) => item.id === state.difficulty).label}`;
+        renderCategories();
+        goTo("category-screen");
+      }
+
+      function renderCategories() {
+        const container = document.getElementById("category-cards");
+        if (!container) return;
+        container.innerHTML = "";
+        const currentCategories = state.module === "math" ? mathCategories : spellingCategories;
+
+        currentCategories.forEach((category) => {
+          const card = document.createElement("article");
+          card.className = "category-card";
+          card.innerHTML = `
+            <span class="badge">${state.module === "math" ? "Matemáticas" : "Ortografía"}</span>
+            <h3>${category.name}</h3>
+            <p>${category.description}</p>
+            <button class="btn btn-primary">Jugar</button>
+          `;
+
+          const btn = card.querySelector("button");
+          if (btn) {
+            btn.addEventListener("click", () => startCategory(category.id));
+          }
+
+          container.appendChild(card);
+        });
+      }
+
+      function startCategory(categoryId) {
+        const categories = state.module === "math" ? mathCategories : spellingCategories;
+        const category = categories.find((item) => item.id === categoryId);
+        if (!category) return;
+
+        state.category = category;
+        const pool = getQuestionPool(category);
+        const questionCount = getQuestionCountForDifficulty();
+        state.questions = shuffle(pool).slice(0, Math.min(questionCount, pool.length));
+        state.currentIndex = 0;
+        state.score = 0;
+        state.correct = 0;
+        state.timeLeft = 20;
+        state.answered = false;
+        renderGameScreen();
+        startTimer();
+        showPage("game-screen");
+      }
+
+      function shuffle(array) {
+        return array.slice().sort(() => Math.random() - 0.5);
+      }
+
+      function updateTimerDisplay() {
+        const timerElement = document.getElementById("time-left");
+        if (timerElement) timerElement.textContent = `${state.timeLeft}s`;
+      }
+
+      function startTimer() {
+        clearInterval(state.timerId);
+        updateTimerDisplay();
+        state.timerId = setInterval(() => {
+          state.timeLeft -= 1;
+          updateTimerDisplay();
+          if (state.timeLeft <= 0) {
+            clearInterval(state.timerId);
+            handleTimeout();
+          }
+        }, 1000);
+      }
+
+      function renderGameScreen() {
+        const question = state.questions[state.currentIndex];
+        if (!question) return;
+        const questionText = document.getElementById("question-text");
+        const optionsContainer = document.getElementById("question-options");
+        const categoryTitle = document.getElementById("game-category");
+        const scoreText = document.getElementById("game-score");
+        const progressFill = document.getElementById("progress-fill");
+        const feedback = document.getElementById("feedback-text");
+
+        if (questionText) questionText.textContent = question.prompt;
+        if (categoryTitle) categoryTitle.textContent = state.category ? state.category.name : "";
+        if (scoreText) scoreText.textContent = String(state.score);
+        if (feedback) feedback.textContent = "";
+        if (optionsContainer) {
+          optionsContainer.innerHTML = "";
+          const shuffled = shuffle(question.options);
+          shuffled.forEach((option) => {
+            const btn = document.createElement("button");
+            btn.className = "option-btn";
+            btn.textContent = String(option);
+            btn.addEventListener("click", () => handleAnswer(option, btn));
+            optionsContainer.appendChild(btn);
+          });
+        }
+
+        updateTimerDisplay();
+
+        if (progressFill) {
+          progressFill.style.width = `${Math.round((state.currentIndex / state.questions.length) * 100)}%`;
+        }
+      }
+
+      function handleAnswer(answer, button) {
+        if (state.answered) return;
+        state.answered = true;
+        clearInterval(state.timerId);
+        const question = state.questions[state.currentIndex];
+        if (!question) return;
+
+        const buttons = Array.from(document.querySelectorAll(".option-btn"));
+        const correctAnswer = question.answer;
+        const feedback = document.getElementById("feedback-text");
+
+        if (answer === correctAnswer) {
+          state.score += 10;
+          state.correct += 1;
+          if (feedback) feedback.textContent = "¡Muy bien!";
+        } else {
+          if (feedback) feedback.textContent = `La respuesta correcta es ${correctAnswer}.`;
+        }
+
+        buttons.forEach((btn) => {
+          const value = btn.textContent;
+          btn.disabled = true;
+          if (value === String(correctAnswer)) {
+            btn.classList.add("correct");
+          } else if (value === String(answer)) {
+            btn.classList.add("wrong");
+          }
+        });
+
+        const scoreText = document.getElementById("game-score");
+        if (scoreText) scoreText.textContent = String(state.score);
+
+        setTimeout(() => {
+          state.answered = false;
+          nextQuestion();
+        }, 850);
+      }
+
+      function handleTimeout() {
+        state.answered = true;
+        const feedback = document.getElementById("feedback-text");
+        if (feedback) feedback.textContent = "Se acabó el tiempo. Vamos a la siguiente pregunta.";
+
+        const buttons = Array.from(document.querySelectorAll(".option-btn"));
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+        });
+
+        setTimeout(() => {
+          state.answered = false;
+          nextQuestion();
+        }, 850);
+      }
+
+      function nextQuestion() {
+        state.currentIndex += 1;
+        if (state.currentIndex >= state.questions.length) {
+          finishGame();
+        } else {
+          state.timeLeft = 20;
+          renderGameScreen();
+          startTimer();
+        }
+      }
+
+      function finishGame() {
+        clearInterval(state.timerId);
+        const result = {
+          profile: state.profile ? state.profile : { name: "Invitado", grade: "-", age: "-" },
+          module: state.module,
+          category: state.category ? state.category.name : "",
+          difficulty: state.difficulty,
+          score: state.score,
+          correct: state.correct,
+          total: state.questions.length,
+          accuracy: state.questions.length ? Math.round((state.correct / state.questions.length) * 100) : 0,
+          date: new Date().toISOString()
+        };
+        state.completedGames.push(result);
+        state.allResults.push(result);
+        saveResults();
+        renderSummary();
+        goTo("summary-screen");
+      }
+
+      function endGame() {
+        clearInterval(state.timerId);
+        state.category = null;
+        state.questions = [];
+        state.currentIndex = 0;
+        state.score = 0;
+        state.correct = 0;
+        state.timeLeft = 20;
+        state.answered = false;
+        goTo("menu-screen");
+      }
+
+      function renderStatus() {
+        const totalPoints = state.completedGames.reduce((sum, game) => sum + game.score, 0);
+        const totalCorrect = state.completedGames.reduce((sum, game) => sum + game.correct, 0);
+        const totalQuestions = state.completedGames.reduce((sum, game) => sum + game.total, 0);
+        const accuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+
+        const scoreText = document.getElementById("status-score");
+        const correctText = document.getElementById("status-correct");
+        const accuracyText = document.getElementById("status-accuracy");
+
+        if (scoreText) scoreText.textContent = String(totalPoints);
+        if (correctText) correctText.textContent = `${totalCorrect} / ${totalQuestions}`;
+        if (accuracyText) accuracyText.textContent = `${accuracy}%`;
+      }
+
+      function renderSummary() {
+        const totalPoints = state.completedGames.reduce((sum, game) => sum + game.score, 0);
+        const totalCorrect = state.completedGames.reduce((sum, game) => sum + game.correct, 0);
+        const totalQuestions = state.completedGames.reduce((sum, game) => sum + game.total, 0);
+        const accuracy = totalQuestions ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
+        const games = state.completedGames.length;
+        const memory = Math.min(100, accuracy + 10);
+        const attention = Math.min(100, accuracy + 15);
+        const reasoning = Math.min(100, games ? Math.round((totalPoints / (games * 60)) * 100) : 0);
+
+        const points = document.getElementById("summary-points");
+        const accuracyText = document.getElementById("summary-accuracy");
+        const gamesText = document.getElementById("summary-games");
+        const memoryText = document.getElementById("summary-memory");
+        const attentionText = document.getElementById("summary-attention");
+        const reasoningText = document.getElementById("summary-reasoning");
+
+        if (points) points.textContent = String(totalPoints);
+        if (accuracyText) accuracyText.textContent = `${accuracy}%`;
+        if (gamesText) gamesText.textContent = String(games);
+        if (memoryText) memoryText.textContent = `${memory}%`;
+        if (attentionText) attentionText.textContent = `${attention}%`;
+        if (reasoningText) reasoningText.textContent = `${reasoning}%`;
+
+        const feedbackMessage = document.getElementById("feedback-message");
+        if (feedbackMessage) feedbackMessage.textContent = "";
+      }
+
+      function submitFeedback() {
+        const like = document.getElementById("feedback-like").value;
+        const easy = document.getElementById("feedback-easy").value;
+        const comments = document.getElementById("feedback-comments").value.trim();
+        const feedbackMessage = document.getElementById("feedback-message");
+
+        if (!like || !easy) {
+          if (feedbackMessage) feedbackMessage.textContent = "Por favor, completa todas las preguntas.";
+          return;
+        }
+
+        const feedback = {
+          like,
+          easy,
+          comments,
+          date: new Date().toISOString(),
+          module: state.module,
+          difficulty: state.difficulty
+        };
+
+        console.log("Feedback enviado:", feedback);
+        if (feedbackMessage) {
+          feedbackMessage.textContent = "¡Gracias por tu evaluación!";
+        }
+
+        document.getElementById("feedback-like").value = "";
+        document.getElementById("feedback-easy").value = "";
+        document.getElementById("feedback-comments").value = "";
+      }
+
+      loadProfile();
+      loadResults();
+      loadTheme();
+    </script>
   </body>
 </html>
